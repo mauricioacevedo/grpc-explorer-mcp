@@ -1,0 +1,22 @@
+# Try grpc-explorer-mcp end to end:
+#   docker compose up --build
+# then point an MCP client at http://localhost:8080/mcp (bearer token: demo-token).
+services:
+  demo-server:
+    build:
+      context: .
+      target: demo
+
+  grpc-explorer-mcp:
+    build: .
+    depends_on: [demo-server]
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      GRPC_EXPLORER_HTTP_TOKEN: ${GRPC_EXPLORER_HTTP_TOKEN:-demo-token}
+    command:
+      - -transport=http
+      - -listen=0.0.0.0:8080
+      - -target=demo-server:50051
+      - -allow-targets=demo-server:*
+      - -allow-calls
